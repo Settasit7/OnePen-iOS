@@ -34,7 +34,7 @@ let package = Package(
             ],
             capabilities: [
                 .camera(purposeString: "Your camera is used to display virtual objects in augmented reality (AR)."),
-                .photoLibraryAdd(purposeString: "Your photo library is used to add captured images to your photos.")
+                .photoLibraryAdd(purposeString: "Your photo library is used to add captured images to your photos without other images being accessed; for example, you can save screenshots with no images in your photos being collected or shared.")
             ],
             appCategory: .education
         )
