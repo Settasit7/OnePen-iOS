@@ -9,7 +9,6 @@ struct ContentView_2: View {
     @State private var upText: String = ""
     @State private var dnText: String = ""
     @State private var nextView: Bool = false
-    @State private var showInst: Bool = false
     
     var body: some View {
         ZStack {
@@ -133,9 +132,7 @@ struct ContentView_2: View {
                 })
                 Button(action: {
                     switch modelType {
-                    case 4: withAnimation {
-                        showInst = true
-                    }
+                    case 4: nextView = true
                     default:
                         modelType += 1
                         modelShow = 0
@@ -169,40 +166,6 @@ struct ContentView_2: View {
                 })
             }
             .offset(y: 0.36 * UIScreen.main.bounds.height)
-            ZStack {
-                Rectangle()
-                Text("On the next page, allow OnePen to access the camera.\n\nThen, move the device around to detect surface.\n\nFinally, tap on well lit surface to place your AR krathong.\n\nNote that no QR code is needed.")
-                    .foregroundColor(.accentColor)
-                    .frame(width: 278, alignment: .leading)
-                HStack {
-                    Button(action: {
-                        withAnimation {
-                            showInst = false
-                        }
-                    }, label: {
-                        ZStack {
-                            Capsule()
-                                .stroke(lineWidth: 1)
-                                .frame(width: 96, height: 48)
-                                .padding(4)
-                            Image(systemName: "xmark")
-                        }
-                    })
-                    Button(action: {
-                        nextView = true
-                    }, label: {
-                        ZStack {
-                            Capsule()
-                                .frame(width: 96, height: 48)
-                                .padding(4)
-                            Image(systemName: "chevron.right")
-                                .foregroundColor(.black)
-                        }
-                    })
-                }
-                .offset(y: 0.36 * UIScreen.main.bounds.height)
-            }
-            .opacity(showInst ? 1 : 0)
         }
         .ignoresSafeArea()
         .navigationDestination(isPresented: $nextView) {

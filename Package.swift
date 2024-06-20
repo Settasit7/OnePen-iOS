@@ -10,7 +10,7 @@ import AppleProductTypes
 let package = Package(
     name: "OnePen",
     platforms: [
-        .iOS("17.0")
+        .iOS("16.0")
     ],
     products: [
         .iOSApplication(
@@ -18,8 +18,8 @@ let package = Package(
             targets: ["AppModule"],
             bundleIdentifier: "com.settasit.onepen",
             teamIdentifier: "859P739SU5",
-            displayVersion: "1.0",
-            bundleVersion: "7",
+            displayVersion: "1.1",
+            bundleVersion: "8",
             appIcon: .asset("AppIcon"),
             accentColor: .presetColor(.yellow),
             supportedDeviceFamilies: [
@@ -34,7 +34,7 @@ let package = Package(
             ],
             capabilities: [
                 .camera(purposeString: "Your camera is used to display virtual objects in augmented reality (AR)."),
-                .photoLibraryAdd(purposeString: "Your photo library is used to add captured images to your photos without other images being accessed; for example, you can save screenshots with no images in your photos being collected or shared.")
+                .photoLibraryAdd(purposeString: "Your photo library is used to add captured screenshots to your photos without accessing other images.")
             ],
             appCategory: .education
         )
