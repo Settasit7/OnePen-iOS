@@ -17,90 +17,92 @@ struct ContentView_2: View {
                 options: [.autoenablesDefaultLighting, .allowsCameraControl]
             )
             .frame(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height)
-            Button(action: {
-                withAnimation {
-                    switch (modelType, modelShow) {
-                    case (1, 0):
-                        modelShow = 3
-                        dnText = "Gardenia Roll"
-                    case (1, 1):
-                        modelShow = 0
-                        dnText = "Lotus Petal"
-                    case (1, 2):
-                        modelShow = 1
-                        dnText = "Lady Finger"
-                    case (1, 3):
-                        modelShow = 2
-                        dnText = "Garuda Nail"
-                    case (2, 0):
-                        modelShow = 3
-                        dnText = "Lotus: for success and prosperity"
-                    case (2, 1):
-                        modelShow = 0
-                        dnText = "Marigold: for career and wealth"
-                    case (2, 2):
-                        modelShow = 1
-                        dnText = "Rose: for love and desire"
-                    case (2, 3):
-                        modelShow = 2
-                        dnText = "Orchid: for health and well-being"
-                    default: break
+            if modelType == 1 || modelType == 2 {
+                Button(action: {
+                    withAnimation {
+                        switch (modelType, modelShow) {
+                        case (1, 0):
+                            modelShow = 3
+                            dnText = "Gardenia Roll"
+                        case (1, 1):
+                            modelShow = 0
+                            dnText = "Lotus Petal"
+                        case (1, 2):
+                            modelShow = 1
+                            dnText = "Lady Finger"
+                        case (1, 3):
+                            modelShow = 2
+                            dnText = "Garuda Nail"
+                        case (2, 0):
+                            modelShow = 3
+                            dnText = "Lotus: for success and prosperity"
+                        case (2, 1):
+                            modelShow = 0
+                            dnText = "Marigold: for career and wealth"
+                        case (2, 2):
+                            modelShow = 1
+                            dnText = "Rose: for love and desire"
+                        case (2, 3):
+                            modelShow = 2
+                            dnText = "Orchid: for health and well-being"
+                        default: break
+                        }
+                        switch modelType {
+                        case 1: dataModel.model_1 = modelShow
+                        case 2: dataModel.model_2 = modelShow
+                        default: break
+                        }
+                        customScene.updateContent(modelType: modelType, modelShow: modelShow)
                     }
-                    switch modelType {
-                    case 1: dataModel.model_1 = modelShow
-                    case 2: dataModel.model_2 = modelShow
-                    default: break
+                }, label: {
+                    Image(systemName: "chevron.compact.left")
+                        .font(.system(size: 64))
+                        .opacity(modelType == 1 || modelType == 2 ? 1 : 0)
+                })
+                .offset(x: -0.42 * UIScreen.main.bounds.width)
+                Button(action: {
+                    withAnimation {
+                        switch (modelType, modelShow) {
+                        case (1, 0):
+                            modelShow = 1
+                            dnText = "Lady Finger"
+                        case (1, 1):
+                            modelShow = 2
+                            dnText = "Garuda Nail"
+                        case (1, 2):
+                            modelShow = 3
+                            dnText = "Gardenia Roll"
+                        case (1, 3):
+                            modelShow = 0
+                            dnText = "Lotus Petal"
+                        case (2, 0):
+                            modelShow = 1
+                            dnText = "Rose: for love and desire"
+                        case (2, 1):
+                            modelShow = 2
+                            dnText = "Orchid: for health and well-being"
+                        case (2, 2):
+                            modelShow = 3
+                            dnText = "Lotus: for success and prosperity"
+                        case (2, 3):
+                            modelShow = 0
+                            dnText = "Marigold: for career and wealth"
+                        default: break
+                        }
+                        switch modelType {
+                        case 1: dataModel.model_1 = modelShow
+                        case 2: dataModel.model_2 = modelShow
+                        default: break
+                        }
+                        customScene.updateContent(modelType: modelType, modelShow: modelShow)
                     }
-                    customScene.updateContent(modelType: modelType, modelShow: modelShow)
-                }
-            }, label: {
-                Image(systemName: "chevron.compact.left")
-                    .font(.system(size: 64))
-                    .opacity(modelType == 1 || modelType == 2 ? 1 : 0)
-            })
-            .offset(x: -0.42 * UIScreen.main.bounds.width)
-            Button(action: {
-                withAnimation {
-                    switch (modelType, modelShow) {
-                    case (1, 0): 
-                        modelShow = 1
-                        dnText = "Lady Finger"
-                    case (1, 1):
-                        modelShow = 2
-                        dnText = "Garuda Nail"
-                    case (1, 2):
-                        modelShow = 3
-                        dnText = "Gardenia Roll"
-                    case (1, 3):
-                        modelShow = 0
-                        dnText = "Lotus Petal"
-                    case (2, 0):
-                        modelShow = 1
-                        dnText = "Rose: for love and desire"
-                    case (2, 1):
-                        modelShow = 2
-                        dnText = "Orchid: for health and well-being"
-                    case (2, 2):
-                        modelShow = 3
-                        dnText = "Lotus: for success and prosperity"
-                    case (2, 3):
-                        modelShow = 0
-                        dnText = "Marigold: for career and wealth"
-                    default: break
-                    }
-                    switch modelType {
-                    case 1: dataModel.model_1 = modelShow
-                    case 2: dataModel.model_2 = modelShow
-                    default: break
-                    }
-                    customScene.updateContent(modelType: modelType, modelShow: modelShow)
-                }
-            }, label: {
-                Image(systemName: "chevron.compact.right")
-                    .font(.system(size: 64))
-                    .opacity(modelType == 1 || modelType == 2 ? 1 : 0)
-            })
-            .offset(x: 0.42 * UIScreen.main.bounds.width)
+                }, label: {
+                    Image(systemName: "chevron.compact.right")
+                        .font(.system(size: 64))
+                        .opacity(modelType == 1 || modelType == 2 ? 1 : 0)
+                })
+                .offset(x: 0.42 * UIScreen.main.bounds.width)
+            }
             Text(upText)
                 .fontWeight(.bold)
                 .foregroundColor(.accentColor)
