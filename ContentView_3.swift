@@ -40,8 +40,7 @@ struct ContentView_3: View {
             .offset(y: 0.36 * UIScreen.main.bounds.height)
             .opacity(showSnap ? 1 : 0)
             if showClip {
-                VideoPlayerView(player: player)
-                    .frame(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height)
+                FullscreenVideoPlayer(player: player)
                     .opacity(darkness)
                     .onAppear {
                         player.play()
@@ -88,6 +87,7 @@ struct ARViewContainer: UIViewRepresentable {
     }
     func makeUIView(context: UIViewRepresentableContext<ARViewContainer>) -> ARView {
         ARVariables.arView = ARView(frame: .zero, cameraMode: .ar, automaticallyConfigureSession: true)
+        ARVariables.arView.environment.lighting.intensityExponent = 1.0
         ARVariables.arView.enableTapGesture(with: modelMade)
         func installGestures(on object: ModelEntity) {
             object.generateCollisionShapes(recursive: true)
@@ -164,5 +164,19 @@ extension ARView {
         default: return
         }
         loadModel(named: modelName)
+    }
+}
+
+struct FullscreenVideoPlayer: UIViewControllerRepresentable {
+    var player: AVPlayer
+    func makeUIViewController(context: Context) -> AVPlayerViewController {
+        let controller = AVPlayerViewController()
+        controller.player = player
+        controller.showsPlaybackControls = false
+        controller.videoGravity = .resizeAspectFill
+        return controller
+    }
+    func updateUIViewController(_ uiViewController: AVPlayerViewController, context: Context) {
+        
     }
 }

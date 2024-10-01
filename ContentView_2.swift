@@ -175,12 +175,11 @@ struct ContentView_2: View {
         }
         .onAppear {
             switch modelType {
-            case 0:
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                    withAnimation {
-                        upText = "First, prepare a 6-inch diameter banana stem cut for the base."
-                    }
+            case 0: DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                withAnimation {
+                    upText = "First, prepare a 6-inch diameter banana stem cut for the base."
                 }
+            }
             default: break
             }
         }
