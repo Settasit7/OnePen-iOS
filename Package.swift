@@ -18,8 +18,8 @@ let package = Package(
             targets: ["AppModule"],
             bundleIdentifier: "com.settasit.onepen",
             teamIdentifier: "859P739SU5",
-            displayVersion: "1.1.1",
-            bundleVersion: "9",
+            displayVersion: "1.1.2",
+            bundleVersion: "10",
             appIcon: .asset("AppIcon"),
             accentColor: .presetColor(.yellow),
             supportedDeviceFamilies: [

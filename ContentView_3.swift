@@ -7,10 +7,11 @@ struct ContentView_3: View {
     @ObservedObject var dataModel: DataModel
     @State private var upText: String = ""
     @State private var dnText: String = ""
+    @State private var popFlash: Bool = false
     @State private var showSnap: Bool = false
     @State private var showClip: Bool = true
-    @State private var player: AVPlayer = AVPlayer()
-    @State private var darkness: Double = 0.5
+    @State private var avPlayer: AVPlayer = AVPlayer()
+    @State private var onFilter: Double = 0.5
     
     var body: some View {
         ZStack {
@@ -29,6 +30,16 @@ struct ContentView_3: View {
                     let compressedImage = UIImage(data: (image?.pngData())!)
                     UIImageWriteToSavedPhotosAlbum(compressedImage!, nil, nil, nil)
                 }
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                    withAnimation(Animation.easeInOut(duration: 0.1)) {
+                        popFlash = true
+                    }
+                }
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                    withAnimation(Animation.easeInOut(duration: 0.3)) {
+                        popFlash = false
+                    }
+                }
             }, label: {
                 ZStack {
                     Capsule()
@@ -40,13 +51,13 @@ struct ContentView_3: View {
             .offset(y: 0.36 * UIScreen.main.bounds.height)
             .opacity(showSnap ? 1 : 0)
             if showClip {
-                FullscreenVideoPlayer(player: player)
-                    .opacity(darkness)
+                FullscreenVideoPlayer(player: avPlayer)
+                    .opacity(onFilter)
                     .onAppear {
-                        player.play()
+                        avPlayer.play()
                         NotificationCenter.default.addObserver(forName: .AVPlayerItemDidPlayToEndTime, object: nil, queue: .main) { _ in
                             withAnimation {
-                                darkness = 0
+                                onFilter = 0
                             }
                             DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
                                 showClip = false
@@ -54,11 +65,14 @@ struct ContentView_3: View {
                         }
                     }
             }
+            Color.white
+                .ignoresSafeArea()
+                .opacity(popFlash ? 1 : 0)
         }
         .ignoresSafeArea()
         .onAppear {
             if let url = Bundle.main.url(forResource: "coaching", withExtension: "mp4") {
-                player.replaceCurrentItem(with: AVPlayerItem(url: url))
+                avPlayer.replaceCurrentItem(with: AVPlayerItem(url: url))
             }
             DispatchQueue.main.asyncAfter(deadline: .now() + 3.5) {
                 withAnimation {
