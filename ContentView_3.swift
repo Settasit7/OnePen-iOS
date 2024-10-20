@@ -1,4 +1,5 @@
 import SwiftUI
+import AVFoundation
 import AVKit
 import Combine
 import RealityKit
@@ -7,11 +8,10 @@ struct ContentView_3: View {
     @ObservedObject var dataModel: DataModel
     @State private var upText: String = ""
     @State private var dnText: String = ""
-    @State private var onScreen: Bool = false
-    @State private var showSnap: Bool = false
-    @State private var showClip: Bool = true
-    @State private var avPlayer: AVPlayer = AVPlayer()
-    @State private var onFilter: Double = 0.5
+    @State private var flashToggle: Bool = false
+    @State private var photoButton: Bool = false
+    @State private var videoPlayer: AVPlayer = AVPlayer()
+    @State private var videoFilter: Bool = true
     
     var body: some View {
         ZStack {
@@ -32,12 +32,12 @@ struct ContentView_3: View {
                 }
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                     withAnimation(Animation.easeInOut(duration: 0.1)) {
-                        onScreen = true
+                        flashToggle = true
                     }
                 }
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
                     withAnimation(Animation.easeInOut(duration: 0.3)) {
-                        onScreen = false
+                        flashToggle = false
                     }
                 }
             }, label: {
@@ -49,34 +49,29 @@ struct ContentView_3: View {
                 }
             })
             .offset(y: 0.36 * UIScreen.main.bounds.height)
-            .opacity(showSnap ? 1 : 0)
-            if showClip {
-                FullscreenVideoPlayer(player: avPlayer)
-                    .opacity(onFilter)
-                    .onAppear {
-                        avPlayer.play()
-                        NotificationCenter.default.addObserver(forName: .AVPlayerItemDidPlayToEndTime, object: nil, queue: .main) { _ in
-                            withAnimation {
-                                onFilter = 0
-                            }
-                            DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-                                showClip = false
-                            }
-                        }
-                    }
-            }
+            .opacity(photoButton ? 1 : 0)
             Color.white
                 .ignoresSafeArea()
-                .opacity(onScreen ? 1 : 0)
+                .opacity(flashToggle ? 1 : 0)
+            FullscreenVideoPlayer(player: videoPlayer)
+                .opacity(videoFilter ? 0.5 : 0)
+                .onAppear {
+                    videoPlayer.play()
+                    NotificationCenter.default.addObserver(forName: .AVPlayerItemDidPlayToEndTime, object: nil, queue: .main) { _ in
+                        withAnimation {
+                            videoFilter = false
+                        }
+                    }
+                }
         }
         .ignoresSafeArea()
         .onAppear {
             if let url = Bundle.main.url(forResource: "coaching", withExtension: "mp4") {
-                avPlayer.replaceCurrentItem(with: AVPlayerItem(url: url))
+                videoPlayer.replaceCurrentItem(with: AVPlayerItem(url: url))
             }
             DispatchQueue.main.asyncAfter(deadline: .now() + 3.5) {
                 withAnimation {
-                    showSnap = true
+                    photoButton = true
                 }
             }
             DispatchQueue.main.asyncAfter(deadline: .now() + 4.5) {
@@ -101,7 +96,7 @@ struct ARViewContainer: UIViewRepresentable {
     }
     func makeUIView(context: UIViewRepresentableContext<ARViewContainer>) -> ARView {
         ARVariables.arView = ARView(frame: .zero, cameraMode: .ar, automaticallyConfigureSession: true)
-        ARVariables.arView.environment.lighting.intensityExponent = 1.0
+        ARVariables.arView.environment.lighting.intensityExponent = 1
         ARVariables.arView.enableTapGesture(with: modelMade)
         func installGestures(on object: ModelEntity) {
             object.generateCollisionShapes(recursive: true)
@@ -119,6 +114,7 @@ private var loadRequest: AnyCancellable?
 extension ARView {
     private struct AssociatedKeys {
         static var modelCode = "modelCode"
+        static var audioPlayer = "audioPlayer"
     }
     func enableTapGesture(with modelMade: Int) {
         let tapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(handleTap(recognizer:)))
@@ -139,6 +135,7 @@ extension ARView {
                 let position = simd_make_float3(firstSurfaceResult.worldTransform.columns.3)
                 if let modelMade = objc_getAssociatedObject(recognizer, &AssociatedKeys.modelCode) as? Int {
                     placeModel(at: position, with: modelMade)
+                    playAudio()
                 }
             }
         }
@@ -159,16 +156,16 @@ extension ARView {
         }
         let modelName: String
         switch modelMade {
-        case 0: modelName = "model-1-1-1.usdz"
-        case 1: modelName = "model-1-1-2.usdz"
-        case 2: modelName = "model-1-1-3.usdz"
-        case 3: modelName = "model-1-1-4.usdz"
-        case 4: modelName = "model-1-2-1.usdz"
-        case 5: modelName = "model-1-2-2.usdz"
-        case 6: modelName = "model-1-2-3.usdz"
-        case 7: modelName = "model-1-2-4.usdz"
-        case 8: modelName = "model-1-3-1.usdz"
-        case 9: modelName = "model-1-3-2.usdz"
+        case  0: modelName = "model-1-1-1.usdz"
+        case  1: modelName = "model-1-1-2.usdz"
+        case  2: modelName = "model-1-1-3.usdz"
+        case  3: modelName = "model-1-1-4.usdz"
+        case  4: modelName = "model-1-2-1.usdz"
+        case  5: modelName = "model-1-2-2.usdz"
+        case  6: modelName = "model-1-2-3.usdz"
+        case  7: modelName = "model-1-2-4.usdz"
+        case  8: modelName = "model-1-3-1.usdz"
+        case  9: modelName = "model-1-3-2.usdz"
         case 10: modelName = "model-1-3-3.usdz"
         case 11: modelName = "model-1-3-4.usdz"
         case 12: modelName = "model-1-4-1.usdz"
@@ -179,6 +176,20 @@ extension ARView {
         }
         loadModel(named: modelName)
     }
+    func playAudio() {
+        guard let url = Bundle.main.url(forResource: "arisu", withExtension: "mp3") else {
+            return
+        }
+        do {
+            let audioPlayer = try AVAudioPlayer(contentsOf: url)
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                audioPlayer.play()
+            }
+            objc_setAssociatedObject(self, &AssociatedKeys.audioPlayer, audioPlayer, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+        } catch {
+            
+        }
+    }
 }
 
 struct FullscreenVideoPlayer: UIViewControllerRepresentable {
@@ -186,7 +197,6 @@ struct FullscreenVideoPlayer: UIViewControllerRepresentable {
     func makeUIViewController(context: Context) -> AVPlayerViewController {
         let controller = AVPlayerViewController()
         controller.player = player
-        controller.showsPlaybackControls = false
         controller.videoGravity = .resizeAspectFill
         return controller
     }
