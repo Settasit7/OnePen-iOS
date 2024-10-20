@@ -7,7 +7,7 @@ struct ContentView_3: View {
     @ObservedObject var dataModel: DataModel
     @State private var upText: String = ""
     @State private var dnText: String = ""
-    @State private var popFlash: Bool = false
+    @State private var onScreen: Bool = false
     @State private var showSnap: Bool = false
     @State private var showClip: Bool = true
     @State private var avPlayer: AVPlayer = AVPlayer()
@@ -32,12 +32,12 @@ struct ContentView_3: View {
                 }
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                     withAnimation(Animation.easeInOut(duration: 0.1)) {
-                        popFlash = true
+                        onScreen = true
                     }
                 }
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
                     withAnimation(Animation.easeInOut(duration: 0.3)) {
-                        popFlash = false
+                        onScreen = false
                     }
                 }
             }, label: {
@@ -67,7 +67,7 @@ struct ContentView_3: View {
             }
             Color.white
                 .ignoresSafeArea()
-                .opacity(popFlash ? 1 : 0)
+                .opacity(onScreen ? 1 : 0)
         }
         .ignoresSafeArea()
         .onAppear {
