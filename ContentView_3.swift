@@ -6,16 +6,19 @@ import RealityKit
 
 struct ContentView_3: View {
     @ObservedObject var dataModel: DataModel
+    @State private var screenFlash: Bool = false
     @State private var upText: String = ""
     @State private var dnText: String = ""
-    @State private var flashToggle: Bool = false
     @State private var photoButton: Bool = false
     @State private var videoPlayer: AVPlayer = AVPlayer()
-    @State private var videoFilter: Bool = true
+    @State private var videoRemove: Bool = false
     
     var body: some View {
         ZStack {
             ARViewContainer(modelMade: 4 * dataModel.model_1 + dataModel.model_2)
+            Color.white
+                .ignoresSafeArea()
+                .opacity(screenFlash ? 1 : 0)
             Text(upText)
                 .fontWeight(.bold)
                 .foregroundColor(.accentColor)
@@ -32,12 +35,12 @@ struct ContentView_3: View {
                 }
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                     withAnimation(Animation.easeInOut(duration: 0.1)) {
-                        flashToggle = true
+                        screenFlash = true
                     }
                 }
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
                     withAnimation(Animation.easeInOut(duration: 0.3)) {
-                        flashToggle = false
+                        screenFlash = false
                     }
                 }
             }, label: {
@@ -50,16 +53,13 @@ struct ContentView_3: View {
             })
             .offset(y: 0.36 * UIScreen.main.bounds.height)
             .opacity(photoButton ? 1 : 0)
-            Color.white
-                .ignoresSafeArea()
-                .opacity(flashToggle ? 1 : 0)
             FullscreenVideoPlayer(player: videoPlayer)
-                .opacity(videoFilter ? 0.5 : 0)
+                .opacity(videoRemove ? 0 : 0.5)
                 .onAppear {
                     videoPlayer.play()
                     NotificationCenter.default.addObserver(forName: .AVPlayerItemDidPlayToEndTime, object: nil, queue: .main) { _ in
                         withAnimation {
-                            videoFilter = false
+                            videoRemove = true
                         }
                     }
                 }
@@ -86,6 +86,7 @@ struct ContentView_3: View {
 
 struct ARVariables{
     static var arView: ARView!
+    static var audioPlayers: [AVAudioPlayer] = []
 }
 
 struct ARViewContainer: UIViewRepresentable {
@@ -182,6 +183,7 @@ extension ARView {
         }
         do {
             let audioPlayer = try AVAudioPlayer(contentsOf: url)
+            ARVariables.audioPlayers.append(audioPlayer)
             DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
                 audioPlayer.play()
             }
