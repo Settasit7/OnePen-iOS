@@ -1,5 +1,4 @@
 import SwiftUI
-import AVFoundation
 import AVKit
 import Combine
 import RealityKit
@@ -9,7 +8,7 @@ struct ContentView_3: View {
     @State private var screenFlash: Bool = false
     @State private var upText: String = ""
     @State private var dnText: String = ""
-    @State private var photoButton: Bool = false
+    @State private var ariseCamera: Bool = false
     @State private var videoPlayer: AVPlayer = AVPlayer()
     @State private var videoRemove: Bool = false
     
@@ -52,7 +51,7 @@ struct ContentView_3: View {
                 }
             })
             .offset(y: 0.36 * UIScreen.main.bounds.height)
-            .opacity(photoButton ? 1 : 0)
+            .opacity(ariseCamera ? 1 : 0)
             FullscreenVideoPlayer(player: videoPlayer)
                 .opacity(videoRemove ? 0 : 0.5)
                 .onAppear {
@@ -71,7 +70,7 @@ struct ContentView_3: View {
             }
             DispatchQueue.main.asyncAfter(deadline: .now() + 3.5) {
                 withAnimation {
-                    photoButton = true
+                    ariseCamera = true
                 }
             }
             DispatchQueue.main.asyncAfter(deadline: .now() + 4.5) {
@@ -86,7 +85,6 @@ struct ContentView_3: View {
 
 struct ARVariables{
     static var arView: ARView!
-    static var audioPlayers: [AVAudioPlayer] = []
 }
 
 struct ARViewContainer: UIViewRepresentable {
@@ -135,14 +133,14 @@ extension ARView {
                 let position = simd_make_float3(firstSurfaceResult.worldTransform.columns.3)
                 if let modelMade = objc_getAssociatedObject(recognizer, &AssociatedKeys.modelCode) as? Int {
                     placeModel(at: position, with: modelMade)
-                    playAudio()
                 }
             }
         }
     }
     func placeModel(at position: SIMD3<Float>, with modelMade: Int) {
         func loadModel(named modelName: String) {
-            loadRequest = Entity.loadAsync(named: modelName).sink(receiveCompletion: { status in print(status)
+            loadRequest = Entity.loadAsync(named: modelName).sink(receiveCompletion: { status in
+                
             }) { entity in
                 let parentEntity = ModelEntity()
                 parentEntity.addChild(entity)
@@ -175,20 +173,6 @@ extension ARView {
         default: return
         }
         loadModel(named: modelName)
-    }
-    func playAudio() {
-        guard let url = Bundle.main.url(forResource: "arisu", withExtension: "mp3") else {
-            return
-        }
-        do {
-            let audioPlayer = try AVAudioPlayer(contentsOf: url)
-            ARVariables.audioPlayers.append(audioPlayer)
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-                audioPlayer.play()
-            }
-        } catch {
-            
-        }
     }
 }
 
