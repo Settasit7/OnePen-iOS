@@ -115,7 +115,6 @@ private var loadRequest: AnyCancellable?
 extension ARView {
     private struct AssociatedKeys {
         static var modelCode = "modelCode"
-        static var audioPlayer = "audioPlayer"
     }
     func enableTapGesture(with modelMade: Int) {
         let tapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(handleTap(recognizer:)))
@@ -187,7 +186,6 @@ extension ARView {
             DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
                 audioPlayer.play()
             }
-            objc_setAssociatedObject(self, &AssociatedKeys.audioPlayer, audioPlayer, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
         } catch {
             
         }
